@@ -61,12 +61,29 @@ async function run() {
       res.send(result);
     });
 
-
+    app.get("/myToys/:email", async (req, res) => {
+      console.log(req.params.id);
+      const jobs = await toysCollection
+        .find({
+          sellerEmail: req.params.email,
+        })
+        .toArray();
+      res.send(jobs);
+    });
 
 
     app.post("/addToys", async (req, res) => {
       const body = req.body;
       const result = await toysCollection.insertOne(body)
+      res.send(result)
+    })
+
+
+    app.delete('/delToy/:id', async(req, res) => {
+      const id = req.params.id;
+      console.log(id);
+      const query = {_id: new ObjectId(id)}
+      const result = await toysCollection.deleteOne(query)
       res.send(result)
     })
 
