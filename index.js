@@ -28,6 +28,14 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
     const toysCollection = client.db('toyFusion').collection('toys')
+    // index
+    const indexKeys = { toyName: 1 }; // Replace field1 and field2 with your actual field names
+    const indexOptions = { name: "searchByToyName" }; // Replace index_name with the desired index name
+    const result = await toysCollection.createIndex(indexKeys, indexOptions);
+
+
+
+
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
@@ -36,23 +44,30 @@ async function run() {
       const cursor = toysCollection.find().limit(20);
       const result = await cursor.toArray();
       res.send(result);
-  })
+    })
 
-  app.get('/toy/:id', async (req, res) => {
-    const id = req.params.id;
-    const query = { _id: new ObjectId(id) }
-    const result = await toysCollection.findOne(query);
-    res.send(result);
-})
+    app.get('/toy/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) }
+      const result = await toysCollection.findOne(query);
+      res.send(result);
+    })
+
+    app.get("/getToyByName/:text", async (req, res) => {
+      const text = req.params.text;
+      const result = await toysCollection
+        .find({ toyName: { $regex: text, $options: "i" } })
+        .toArray();
+      res.send(result);
+    });
 
 
 
 
-    
-    app.post("/addToys", async(req, res)=> {
-        const body=req.body;
-        const result = await toysCollection.insertOne(body)
-        res.send(result)
+    app.post("/addToys", async (req, res) => {
+      const body = req.body;
+      const result = await toysCollection.insertOne(body)
+      res.send(result)
     })
 
 
@@ -67,9 +82,9 @@ run().catch(console.dir);
 
 
 app.get('/', (req, res) => {
-    res.send('server is running')
+  res.send('server is running')
 })
 
 app.listen(port, () => {
-    console.log(`server is running on port ${port}`);
+  console.log(`server is running on port ${port}`);
 })
