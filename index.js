@@ -71,12 +71,25 @@ async function run() {
       res.send(jobs);
     });
 
+    app.get("/getToysByCategory/:category", async (req, res) => {
+      console.log(req.params.category);
+      const toys = await toysCollection
+      .find({
+        subCategory: req.params.category,
+      })
+      .toArray();
+      res.send(toys)
+    })
+
+
 
     app.post("/addToys", async (req, res) => {
       const body = req.body;
       const result = await toysCollection.insertOne(body)
       res.send(result)
-    })
+    });
+
+
 
 
     app.put("/updateToy/:id", async(req, res) => {
