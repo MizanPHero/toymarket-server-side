@@ -20,13 +20,21 @@ const client = new MongoClient(uri, {
     version: ServerApiVersion.v1,
     strict: true,
     deprecationErrors: true,
-  }
+  },
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  maxPoolSize: 10,
 });
 
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    // await client.connect();
+    client.connect((error)=>{
+      if(error){
+        console.log(error)
+        return;
+      }
+    });
     const toysCollection = client.db('toyFusion').collection('toys')
     // index
     const indexKeys = { toyName: 1 }; // Replace field1 and field2 with your actual field names
